@@ -34,7 +34,7 @@ const addNote = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Note added successfully!"
+      message: `Your note was sent successfully!`
     })
   } catch (e) {
     return res.status(500).json({
