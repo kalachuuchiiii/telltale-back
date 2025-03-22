@@ -5,12 +5,19 @@ const { Note } = require("../models/noteModel.js");
 
 const getAllNotes = async (req, res) => {
   try {
-    const allNotes = await Note.find({}).lean();
+    const notes = await Note.find().sort({createdAt: -1}).skip((req.params.page - 1) * 10).limit(10).lean();
+    
+    const allNotesCount = await Note.countDocuments();
+    
     return res.status(200).json({
       success: true,
-      allNotes
+      notes,
+      
+      allNotesCount
     })
+    
   } catch (e) {
+    
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -46,7 +53,7 @@ const addNote = async (req, res) => {
 }
 
 const getAllNotesByReceiver = async (req, res) => {
-  const { receiver } = req.params;
+  const { receiver, page } = req.params;
   if (!receiver) {
     return res.status(400).json({
       success: false,
@@ -55,11 +62,15 @@ const getAllNotesByReceiver = async (req, res) => {
   }
 
   try {
-   const allNotes = await Note.find({receiver}).lean();
+    
+    const allNotesCount = await Note.countDocuments({receiver});
+   const notes = await Note.find({receiver}).sort({createdAt: - 1}).skip((page - 1) * 10).limit(10).lean();
    
    return res.status(200).json({
      success: true,
-     allNotes
+     notes,
+     allNotesCount
+     
    })
   } catch (e) {
     
