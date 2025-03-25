@@ -45,18 +45,17 @@ const login = async(req, res) => {
     const token = await jwt.sign({ _id: req.userExist._id},process.env.JWT_SECRET, { expiresIn: "30h"})
     
     res.cookie("session", token, {
-      httpOnly: process.env.NODE_ENV !== "production",
+      httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       secure: process.env.NODE_ENV === "production"
     })
     console.log(token);
     return res.status(200).json({
       success: true, 
-      message: "Logged in successfully",
-      token
+      message: "Logged in successfully"
     })
   }catch(e){
-    console.log()
+    
     return res.status(500).json({
       success: false, 
       message: "Internal Server Error",
@@ -97,7 +96,10 @@ const checkSession = async(req, res) => {
 
 const terminateSession = async(req, res) => {
   try {
+    
+    
     res.clearCookie("session");
+    
     return res.status(200).json({
       success: true, 
       message: "Logged out successfully!"
