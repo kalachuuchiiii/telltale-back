@@ -1,5 +1,6 @@
 
 const { Note } = require("../models/noteModel.js");
+const mongoose = require("mongoose");
 
 const getAllNotes = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ const getAllNotes = async (req, res) => {
 const addNote = async (req, res) => {
   const receiver = req.body.receiver.trim();
   const message = req.body.message.trim();
-  const { sender } = req.body;
+  const sender = req?.body?.sender || "";
   if (!receiver || !message) {
     return res.status(400).json({
       success: false,
@@ -91,6 +92,7 @@ const getOneNote = async(req, res) => {
       note
     })
     
+    
   }catch(e){
     return res.status(500).json({
       success: false,
@@ -99,6 +101,31 @@ const getOneNote = async(req, res) => {
   }
 }
 
+const findUserSubmittedNotes = async(req, res) => {
+  const { sender } = req.params; 
+  try {
+    if(!mongoose.Types.ObjectId.isValid(sender)){
+      return res.status(400).json({
+        success: false,
+        message: "Unexpected error has occured. Please try again"
+      })
+    }
+    const totalNotesSubmitted = await Note.find({sender}).countDocuments();
+    const notesSubmittedBySender = await Note.find({ sender }).sort({createdAt: -1});
+    return res.status(200).json({
+      success: true,
+      totalNotesSubmitted,
+      notesSubmittedBySender
+    })
+  
+  }catch(e){
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    })
+  }
+}
 
 
-module.exports = { getAllNotes, addNote, getAllNotesByReceiver, getOneNote };
+
+module.exports = { getAllNotes, addNote, getAllNotesByReceiver, getOneNote, findUserSubmittedNotes};

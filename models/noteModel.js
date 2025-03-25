@@ -14,8 +14,9 @@ const noteSchema = new mongoose.Schema({
     required: true
   }, 
     sender: {
-      type: mongoose.Schema.Types.ObjectId, 
-      index: true
+      type: mongoose.Schema.Types.Mixed,
+      index: true,
+      default: ""
     }
   
 }, {
