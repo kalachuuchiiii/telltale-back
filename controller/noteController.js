@@ -1,8 +1,6 @@
 
 const { Note } = require("../models/noteModel.js");
 
-
-
 const getAllNotes = async (req, res) => {
   try {
     const notes = await Note.find().sort({createdAt: -1}).skip((req.params.page - 1) * 10).limit(10).lean();
@@ -29,6 +27,7 @@ const getAllNotes = async (req, res) => {
 const addNote = async (req, res) => {
   const receiver = req.body.receiver.trim();
   const message = req.body.message.trim();
+  const { sender } = req.body;
   if (!receiver || !message) {
     return res.status(400).json({
       success: false,
@@ -36,7 +35,7 @@ const addNote = async (req, res) => {
     })
   }
   try {
-    const newNote = new Note({ receiver, message });
+    const newNote = new Note({ receiver, message, sender });
     await newNote.save();
 
     return res.status(200).json({

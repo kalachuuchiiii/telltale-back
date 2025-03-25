@@ -12,7 +12,12 @@ const noteSchema = new mongoose.Schema({
     type: String,
     trim: true,
     required: true
-  }
+  }, 
+    sender: {
+      type: mongoose.Schema.Types.ObjectId, 
+      index: true
+    }
+  
 }, {
   timestamps: true
 })
