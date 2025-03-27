@@ -115,4 +115,31 @@ const terminateSession = async(req, res) => {
   }
 }
 
-module.exports = { register, login, checkSession, terminateSession };
+const getUserInfoByName = async(req, res) => {
+  const { name } = req.params; 
+try{
+  const userInfo = await User.findOne({name}).select("-password").lean();
+    if(!name || !userInfo){
+    return res.status(404).json({
+      success: false,
+      message: `No user with name "${name}" was found`,
+      userInfo
+    })
+  }
+  
+  return res.status(200).json({
+    success: true,
+    userInfo
+  })
+  
+}catch(e){
+  return res.status(500).json({
+    success: false,
+    message: "Internal Server Error"
+  })
+}
+  
+  
+}
+
+module.exports = { register, login, checkSession, terminateSession, getUserInfoByName };

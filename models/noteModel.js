@@ -16,7 +16,8 @@ const noteSchema = new mongoose.Schema({
     sender: {
       type: mongoose.Schema.Types.Mixed,
       index: true,
-      default: ""
+      default: "",
+      ref: "user"
     }
   
 }, {

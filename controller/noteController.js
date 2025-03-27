@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const getAllNotes = async (req, res) => {
   try {
-    const notes = await Note.find().sort({createdAt: -1}).skip((req.params.page - 1) * 10).limit(10).lean();
+    const notes = await Note.find().select("-sender").sort({createdAt: -1}).skip((req.params.page - 1) * 10).limit(10).lean();
     
     const allNotesCount = await Note.countDocuments();
     
@@ -64,7 +64,7 @@ const getAllNotesByReceiver = async (req, res) => {
   try {
     
     const allNotesCount = await Note.countDocuments({receiver});
-   const notes = await Note.find({receiver}).sort({createdAt: - 1}).skip((page - 1) * 10).limit(10).lean();
+   const notes = await Note.find({receiver}).sort({createdAt: - 1}).select("-sender").skip((page - 1) * 10).limit(10).lean();
    
    return res.status(200).json({
      success: true,
@@ -86,7 +86,7 @@ const getOneNote = async(req, res) => {
   
   try{
     
-    const note = await Note.findById(id).lean();
+    const note = await Note.findById(id).select("-sender").lean();
     return res.status(200).json({
       success: true,
       note
@@ -102,7 +102,7 @@ const getOneNote = async(req, res) => {
 }
 
 const findUserSubmittedNotes = async(req, res) => {
-  const { sender } = req.params; 
+  const { sender, page } = req.params; 
   try {
     if(!mongoose.Types.ObjectId.isValid(sender)){
       return res.status(400).json({
@@ -111,7 +111,7 @@ const findUserSubmittedNotes = async(req, res) => {
       })
     }
     const totalNotesSubmitted = await Note.find({sender}).countDocuments();
-    const notesSubmittedBySender = await Note.find({ sender }).sort({createdAt: -1});
+    const notesSubmittedBySender = await Note.find({ sender }).select("-sender").sort({createdAt: -1}).skip((page - 1) * 10).limit(10);
     return res.status(200).json({
       success: true,
       totalNotesSubmitted,
@@ -126,6 +126,31 @@ const findUserSubmittedNotes = async(req, res) => {
   }
 }
 
+const getAllNoteOfUser = async(req, res) => {
+  const { id } = req.params; 
+  if(!id || mongoose.Types.ObjectId){
+    return res.status(404).json({
+      success: false,
+      message: "Unexpected Error has Occuredk"
+    })
+  }
+  try{
+    const totalNotes = await Note.findById(id).countDocuments();
+    const userNotes = await Note.findById(id).lean();
+    return res.status(200).json({
+      success: true, 
+      totalNotes,
+      userNotes
+    })
+  }catch(e){
+    return res.status(500).json({
+      success: false, 
+      message: "Internal Server Error"
+    })
+  }
+}
 
 
-module.exports = { getAllNotes, addNote, getAllNotesByReceiver, getOneNote, findUserSubmittedNotes};
+
+
+module.exports = { getAllNotes, addNote, getAllNotesByReceiver, getOneNote, findUserSubmittedNotes, getAllNoteOfUser};
